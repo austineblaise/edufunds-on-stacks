@@ -1,9 +1,17 @@
-"use client";
+// app/components/Navbar.tsx (or wherever your Navbar lives)
+'use client';
 
 import React, { useState } from "react";
 import Link from "next/link";
+import dynamic from "next/dynamic";
 import { Menu, X } from "lucide-react";
 import { usePathname } from "next/navigation";
+
+// --- Option A: simple static import (easy) ---
+// import ConnectWallet from "@/components/ConnectWallet";
+
+// --- Option B: dynamic import (recommended if you want to keep wallet code out of initial bundle) ---
+const ConnectWallet = dynamic(() => import('./ConnectWallet'), { ssr: false });
 
 export default function Navbar() {
   const [open, setOpen] = useState(false);
@@ -46,14 +54,22 @@ export default function Navbar() {
             ))}
           </nav>
 
-          {/* Mobile toggle */}
-          <button
-            onClick={() => setOpen((s) => !s)}
-            aria-label="Toggle menu"
-            className="md:hidden rounded-lg p-2 text-slate-700 hover:bg-slate-100 transition"
-          >
-            {open ? <X size={20} /> : <Menu size={20} />}
-          </button>
+          {/* Right-side actions: wallet + mobile toggle */}
+          <div className="flex items-center gap-3">
+            {/* Show wallet on desktop */}
+            <div className="hidden md:flex">
+              <ConnectWallet />
+            </div>
+
+            {/* Mobile toggle */}
+            <button
+              onClick={() => setOpen((s) => !s)}
+              aria-label="Toggle menu"
+              className="md:hidden rounded-lg p-2 text-slate-700 hover:bg-slate-100 transition"
+            >
+              {open ? <X size={20} /> : <Menu size={20} />}
+            </button>
+          </div>
         </div>
 
         {/* Mobile menu */}
@@ -78,6 +94,11 @@ export default function Navbar() {
                   {item.name}
                 </Link>
               ))}
+
+              {/* Wallet in mobile menu (visible on small screens) */}
+              <div className="px-4 py-2">
+                <ConnectWallet />
+              </div>
             </div>
           </div>
         )}
